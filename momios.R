@@ -1,14 +1,14 @@
+#install.packages("remotes")
+#library(remotes)
+#install_github("cran/fbRanks")
+
 library(fbRanks)
 library(dplyr)
 library(ggplot2)
 
-# Colocar el directorio de trabajo según corresponda
-
-setwd("C:/Users/User/Documents/Bedu/Sesion 8/post/")
+#No es necesario cambiar el directorio de trabajo en RStudioCloud
 
 # Descarga de archivos
-# https://www.football-data.co.uk/spainm.php
-
 u1011 <- "https://www.football-data.co.uk/mmz4281/1011/SP1.csv"
 u1112 <- "https://www.football-data.co.uk/mmz4281/1112/SP1.csv"
 u1213 <- "https://www.football-data.co.uk/mmz4281/1213/SP1.csv"
@@ -20,7 +20,6 @@ u1718 <- "https://www.football-data.co.uk/mmz4281/1718/SP1.csv"
 u1819 <- "https://www.football-data.co.uk/mmz4281/1819/SP1.csv"
 u1920 <- "https://www.football-data.co.uk/mmz4281/1920/SP1.csv"
 
-#RawData <- "C:\\\"
 download.file(url = u1011, destfile ="SP1-1011.csv", mode = "wb")
 download.file(url = u1112, destfile ="SP1-1112.csv", mode = "wb")
 download.file(url = u1213, destfile ="SP1-1213.csv", mode = "wb")
@@ -34,93 +33,64 @@ download.file(url = u1920, destfile ="SP1-1920.csv", mode = "wb")
 
 # Lectura de datos
 
-#lista <- lapply(list.files(path = RawData), read.csv)
+csv_s <- list("SP1-1011.csv", "SP1-1112.csv", "SP1-1213.csv", "SP1-1314.csv",
+             "SP1-1415.csv", "SP1-1516.csv", "SP1-1617.csv", "SP1-1718.csv",
+             "SP1-1819.csv", "SP1-1920.csv")
+lista <- lapply(csv_s, read.csv)
 
 # Procesamiento de datos
 
-#lista <- lapply(lista, select, Date:FTR)
+lapply(lista, colnames) 
+#notamos que cada csv tiene diferente cantidad de columnas y con diferentes nombres
+#y queremos seleccionar las columnas Date, HomeTeam, AwayTeam, FTHG, FTAG, 
+#BbMx.2.5, BbAv.2.5, BbMx.2.5.1 y BbAv.2.5.1.
+#Observamos que los primeros nueve dataframes tienen las columnas 
+#Date, HomeTeam, AwayTeam, FTHG, FTAG juntas pero el último
+#dataframe tiene una columna extra llamada Time entre la columna "Data" y "HomeTeam"
+#además que las columnas BbMx.2.5, BbAv.2.5, BbMx.2.5.1 y BbAv.2.5.1 tienen
+#otros nombres, a saber Max.2.5, Max.2.5.1, Avg.2.5, Avg.2.5.1.
+#Para facilitar la manipulación simultánea de los DataFrames, modificaremos los
+#detalles mencionados en el último dataframe
 
-d1011 <- read.csv("SP1-1011.csv")
-d1112 <- read.csv("SP1-1112.csv")
-d1213 <- read.csv("SP1-1213.csv")
-d1314 <- read.csv("SP1-1314.csv")
-d1415 <- read.csv("SP1-1415.csv")
-d1516 <- read.csv("SP1-1516.csv")
-d1617 <- read.csv("SP1-1617.csv")
-d1718 <- read.csv("SP1-1718.csv")
-d1819 <- read.csv("SP1-1819.csv")
-d1920 <- read.csv("SP1-1920.csv")
+#eliminamos columna extra
+lista[[10]]<-select(lista[[10]], -Time)
+#renombramos columnas
+lista[[10]]<-rename(lista[[10]], "BbMx.2.5"="Max.2.5", "BbAv.2.5"="Avg.2.5",
+                    "BbMx.2.5.1"="Max.2.5.1", "BbAv.2.5.1"="Avg.2.5.1")
 
-d1011S <- select(d1011, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1112S <- select(d1112, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1213S <- select(d1213, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1314S <- select(d1314, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1415S <- select(d1415, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1516S <- select(d1516, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1617S <- select(d1617, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1718S <- select(d1718, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1819S <- select(d1819, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1920S <- select(d1920, Date:FTAG, Max.2.5:Avg.2.5.1)
-d1920S <- select(d1920S, -Time)
-#colnames(d1718S); colnames(d1819S); colnames(d1920S)
+lista <- lapply(lista, select, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
+lapply(lista, colnames)
+#observamos que se seleccionaron las columnas deseadas de todos los dataframes
+#pero en el último df no están en el mismo orden que en los primeros 9, por lo 
+#que ordenamos sus columnas
+lista[[10]] <- select(lista[[10]], colnames(lista[[9]]))
 
 # Arreglamos las fechas
-d1011S <- mutate(d1011S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1112S <- mutate(d1112S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1213S <- mutate(d1213S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1314S <- mutate(d1314S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1415S <- mutate(d1415S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1516S <- mutate(d1516S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1617S <- mutate(d1617S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1718S <- mutate(d1718S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1819S <- mutate(d1819S, Date = as.Date(Date, format = "%d/%m/%Y"))
-d1920S <- mutate(d1920S, Date = as.Date(Date, format = "%d/%m/%Y"))
+lista <- lapply(lista,mutate, Date = as.Date(Date, format = "%d/%m/%y"))
 
-# Unimos de d1415S a d1819S
+# Unimos los dataframes
+d1020s <- do.call(rbind,lista)
 
-d1019S <- rbind(d1011S, d1112S, d1213S, d1314S, d1415S, d1516S, d1617S, d1718S, d1819S)
-
-# Renombrar columnas
-
-d1019S <- rename(d1019S,  Max.2.5.O = BbMx.2.5, 
-                 Avg.2.5.O = BbAv.2.5, 
-                 Max.2.5.U = BbMx.2.5.1,
-                 Avg.2.5.U = BbAv.2.5.1)
-
-d1920S <- rename(d1920S,  Max.2.5.O = Max.2.5, 
-                 Avg.2.5.O = Avg.2.5, 
-                 Max.2.5.U = Max.2.5.1,
-                 Avg.2.5.U = Avg.2.5.1)
-
-# Ordenamos las columnas
-
-d1019S <- select(d1019S, colnames(d1920S))
-
-# Volvemos a unir
-
-d1020S <- rbind(d1019S, d1920S)
-
-# Renombramos
-
-d1020S <- rename(d1020S, date = Date, home.team = HomeTeam, home.score = FTHG, away.team = AwayTeam, away.score = FTAG)
+# Renombramos las columnas
+d1020s <- rename(d1020s, date = Date, home.team = HomeTeam, home.score = FTHG, 
+                 away.team = AwayTeam, away.score = FTAG, Max.2.5.O = BbMx.2.5, 
+                 Avg.2.5.O = BbAv.2.5, Max.2.5.U = BbMx.2.5.1, Avg.2.5.U = BbAv.2.5.1)
+names(d1020s)
 
 # Ordenamos columnas
+data <- select(d1020s, date, home.team, home.score, away.team, away.score:Avg.2.5.U)
 
-data <- select(d1020S, date, home.team, home.score, away.team, away.score:Avg.2.5.U) # Este data frame contiene todos los datos necesarios
-
+#Visualizamos algunos registros del dataframe
 head(data, n = 2L); tail(data, n = 2L)
 
 # Data frames de partidos y equipos
-
-md <- data %>% select(date:away.score)
+md <- select(data, date:away.score)
 write.csv(md, "match.data.csv", row.names = FALSE)
 df <- create.fbRanks.dataframes(scores.file = "match.data.csv")
 teams <- df$teams; scores <- df$scores
-
 head(teams, n = 2L); dim(teams); head(scores, n = 2L); dim(scores)
 
 # Conjuntos iniciales de entrenamiento y de prueba
-
 f <- scores$date # Fechas de partidos
 fu <- unique(f) # Fechas sin repetición
 Ym <- format(fu, "%Y-%m") # Meses y años
