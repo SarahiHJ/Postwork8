@@ -9,27 +9,27 @@ library(ggplot2)
 #No es necesario cambiar el directorio de trabajo en RStudioCloud
 
 # Descarga de archivos
-u1011 <- "https://www.football-data.co.uk/mmz4281/1011/SP1.csv"
-u1112 <- "https://www.football-data.co.uk/mmz4281/1112/SP1.csv"
-u1213 <- "https://www.football-data.co.uk/mmz4281/1213/SP1.csv"
-u1314 <- "https://www.football-data.co.uk/mmz4281/1314/SP1.csv"
-u1415 <- "https://www.football-data.co.uk/mmz4281/1415/SP1.csv"
-u1516 <- "https://www.football-data.co.uk/mmz4281/1516/SP1.csv"
-u1617 <- "https://www.football-data.co.uk/mmz4281/1617/SP1.csv"
-u1718 <- "https://www.football-data.co.uk/mmz4281/1718/SP1.csv"
-u1819 <- "https://www.football-data.co.uk/mmz4281/1819/SP1.csv"
-u1920 <- "https://www.football-data.co.uk/mmz4281/1920/SP1.csv"
+#u1011 <- "https://www.football-data.co.uk/mmz4281/1011/SP1.csv"
+#u1112 <- "https://www.football-data.co.uk/mmz4281/1112/SP1.csv"
+#u1213 <- "https://www.football-data.co.uk/mmz4281/1213/SP1.csv"
+#u1314 <- "https://www.football-data.co.uk/mmz4281/1314/SP1.csv"
+#u1415 <- "https://www.football-data.co.uk/mmz4281/1415/SP1.csv"
+#u1516 <- "https://www.football-data.co.uk/mmz4281/1516/SP1.csv"
+#u1617 <- "https://www.football-data.co.uk/mmz4281/1617/SP1.csv"
+#u1718 <- "https://www.football-data.co.uk/mmz4281/1718/SP1.csv"
+#u1819 <- "https://www.football-data.co.uk/mmz4281/1819/SP1.csv"
+#u1920 <- "https://www.football-data.co.uk/mmz4281/1920/SP1.csv"
 
-download.file(url = u1011, destfile ="SP1-1011.csv", mode = "wb")
-download.file(url = u1112, destfile ="SP1-1112.csv", mode = "wb")
-download.file(url = u1213, destfile ="SP1-1213.csv", mode = "wb")
-download.file(url = u1314, destfile ="SP1-1314.csv", mode = "wb")
-download.file(url = u1415, destfile ="SP1-1415.csv", mode = "wb")
-download.file(url = u1516, destfile ="SP1-1516.csv", mode = "wb")
-download.file(url = u1617, destfile ="SP1-1617.csv", mode = "wb")
-download.file(url = u1718, destfile ="SP1-1718.csv", mode = "wb")
-download.file(url = u1819, destfile ="SP1-1819.csv", mode = "wb")
-download.file(url = u1920, destfile ="SP1-1920.csv", mode = "wb")
+#download.file(url = u1011, destfile ="SP1-1011.csv", mode = "wb")
+#download.file(url = u1112, destfile ="SP1-1112.csv", mode = "wb")
+#download.file(url = u1213, destfile ="SP1-1213.csv", mode = "wb")
+#download.file(url = u1314, destfile ="SP1-1314.csv", mode = "wb")
+#download.file(url = u1415, destfile ="SP1-1415.csv", mode = "wb")
+#download.file(url = u1516, destfile ="SP1-1516.csv", mode = "wb")
+#download.file(url = u1617, destfile ="SP1-1617.csv", mode = "wb")
+#download.file(url = u1718, destfile ="SP1-1718.csv", mode = "wb")
+#download.file(url = u1819, destfile ="SP1-1819.csv", mode = "wb")
+#download.file(url = u1920, destfile ="SP1-1920.csv", mode = "wb")
 
 # Lectura de datos
 
@@ -91,15 +91,13 @@ teams <- df$teams; scores <- df$scores
 head(teams, n = 2L); dim(teams); head(scores, n = 2L); dim(scores)
 
 # Conjuntos iniciales de entrenamiento y de prueba
-f <- scores$date # Fechas de partidos
-fu <- unique(f) # Fechas sin repetición
-Ym <- format(fu, "%Y-%m") # Meses y años
-Ym <- unique(Ym) # Meses y años sin repetir
-places <- which(Ym[15]==format(scores$date, "%Y-%m")) # Consideramos partidos de 15 meses para comenzar a ajustar el modelo
+Ym <- format(scores$date, "%Y-%m")
+Ym <- unique(Ym)
+places <- which(Ym[15]==format(scores$date, "%Y-%m")) # Consideramos partidos de
+                            #15 meses para comenzar a ajustar el modelo
 ffe <- scores$date[max(places)] # Fecha final conjunto de entrenamiento
 
 # Consideraremos partidos de 15 meses para comenzar a ajustar el modelo. Así, nuestro primer conjunto de entrenamiento consiste de datos de partidos hasta el `r ffe` 
-
 train <- scores %>% filter(date <= ffe)
 test <- scores %>% filter(date > ffe)
 
@@ -143,8 +141,7 @@ for(i in 1:(length(unique(scores$date))-170)){
 }
 
 # Eliminamos NA's
-
-buenos <- !(is.na(phs) | is.na(pas)) # 
+buenos <- !(is.na(phs) | is.na(pas))
 phs <- phs[buenos] # predicted home score
 pas <- pas[buenos] # predicted away score
 pht <- pht[buenos] # home team in predictions
@@ -159,12 +156,14 @@ as <- momio$away.score
 
 # Probabilidades condicionales
 
-mean(phs + pas > 3) # proporción de partidos con más de tres goles según el modelo
-mean(phs + pas > 3 & hs + as > 2.5)/mean(phs + pas > 3) 
+# proporción de partidos con más de tres goles según el modelo
+mean(phs + pas > 3)
 # probabilidad condicional estimada de ganar en over 2.5
-mean(phs + pas < 2.1) # proporción de partidos con menos de 2.1 goles según el modelo
-mean(phs + pas < 2.1 & hs + as < 2.5)/mean(phs + pas < 2.1) 
+mean(phs + pas > 3 & hs + as > 2.5)/mean(phs + pas > 3) 
+# proporción de partidos con menos de 2.1 goles según el modelo
+mean(phs + pas < 2.1)
 # probabilidad condicional estimada de ganar en under 2.5
+mean(phs + pas < 2.1 & hs + as < 2.5)/mean(phs + pas < 2.1) 
 
 # Juegos con momios máximos
 
@@ -187,14 +186,14 @@ for(j in 1:length(phs)){
 # Escenario con momios máximos
 
 g <- data.frame(Num_Ap = 1:length(g), Capital = g)
-p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="purple") + geom_point() +
+(p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line(color="pink", size=1.5) + geom_point(color="red",size=0.3) +
   labs(x = "Número de juego", 
        y = "Capital",
        title = "Realizando una secuencia de juegos") +
   theme(plot.title = element_text(size=12))  +
-  theme(axis.text.x = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1),
-        axis.text.y = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1))  # color, ángulo y estilo de las abcisas y ordenadas 
-p
+  theme(axis.text.x = element_text(color="red" , size = 10, angle = 0, hjust = 1),
+        axis.text.y = element_text(color="red" , size = 10, angle = 0, hjust = 1))) 
+        # color, ángulo y estilo de las abcisas y ordenadas 
 
 # Escenario con momios promedio
 
@@ -215,11 +214,10 @@ for(j in 1:length(phs)){
 }
 
 g <- data.frame(Num_Ap = 1:length(g), Capital = g)
-p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="purple") + geom_point() +
+(p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line(color="cyan", size=1.5) + geom_point(color="blue",size=0.3) +
   labs(x = "Número de juego", 
        y = "Capital",
        title = "Realizando una secuencia de juegos") +
   theme(plot.title = element_text(size=12))  +
-  theme(axis.text.x = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1),
-        axis.text.y = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1))  # color, ángulo y estilo de las abcisas y ordenadas 
-p
+  theme(axis.text.x = element_text(face = "bold", color="blue" , size = 10, angle = 0, hjust = 1),
+        axis.text.y = element_text(face = "bold", color="blue" , size = 10, angle = 0, hjust = 1)))
