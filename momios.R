@@ -7,7 +7,7 @@ library(dplyr)
 library(ggplot2)
 
 #No es necesario cambiar el directorio de trabajo en RStudioCloud
-
+#Como los csv ya están en el repositorio del proyecto no es necesario descargarlos nuevamente
 # Descarga de archivos
 #u1011 <- "https://www.football-data.co.uk/mmz4281/1011/SP1.csv"
 #u1112 <- "https://www.football-data.co.uk/mmz4281/1112/SP1.csv"
