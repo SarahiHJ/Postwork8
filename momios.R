@@ -55,8 +55,8 @@ lapply(lista, colnames)
 #eliminamos columna extra
 lista[[10]]<-select(lista[[10]], -Time)
 #renombramos columnas
-lista[[10]]<-rename(lista[[10]], "BbMx.2.5"="Max.2.5", "BbAv.2.5"="Avg.2.5",
-                    "BbMx.2.5.1"="Max.2.5.1", "BbAv.2.5.1"="Avg.2.5.1")
+lista[[10]]<-rename(lista[[10]], BbMx.2.5=Max.2.5, BbAv.2.5=Avg.2.5,
+                    BbMx.2.5.1=Max.2.5.1, BbAv.2.5.1=Avg.2.5.1)
 
 lista <- lapply(lista, select, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
 lapply(lista, colnames)
